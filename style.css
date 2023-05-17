@@ -1,0 +1,45 @@
+.stone{
+    color: black;
+}
+.editable{
+    color: grey;
+}
+
+table {
+    border: 1px solid black;
+}
+
+table td {
+    border: 1px solid black;
+    width: 45px;
+    height: 45px;
+    text-align: center;
+    font-size: 25px;
+    margin: 0;
+    padding: 0;
+}
+table td table td {
+    width: 15px;
+    height: 15px;
+    font-size: 10px;
+    /* border: 1px solid grey; */
+    border: none;
+    z-index: 1;
+}
+table td table{
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    border: none;
+    
+}
+
+#pencil td {
+    color: grey;
+}
+#pencil{
+    z-index: 2;
+    position: absolute;
+    left: 8px;
+    top:8px;
+}
