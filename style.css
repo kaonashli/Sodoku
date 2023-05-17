@@ -34,8 +34,14 @@ table td table{
     
 }
 
-#pencil td {
+#pencil .possible {
     color: grey;
+    font-style: italic;
+}
+#pencil > .impossible {
+    color: rgb(126, 0, 0);
+    text-decoration-line: line-through;
+
 }
 #pencil{
     z-index: 2;
