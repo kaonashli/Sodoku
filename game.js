@@ -12,10 +12,11 @@ const INITIAL_BOARD = [
 
 
 class Game {
-    constructor(initial, board, columnValues, gridValues){
-        this.Inital = initial;
+    constructor(initial, board, rowValues, columnValues, gridValues) {
+        this.Initial = initial;
         this.Board = board;
         this.ColumnValues = columnValues;
+        this.RowValues = rowValues;
         this.GridValues = gridValues;
     }
 };
@@ -32,7 +33,8 @@ class Square {
 };
 
 let board = [];
-let game = new Game(INITIAL_BOARD, [])
+let game = new Game(INITIAL_BOARD, [], [], [], []);
+
 function DisplayBoard() {
     let strHTML = ""
     for (let row = 0; row < INITIAL_BOARD.length; row++) {
@@ -68,6 +70,7 @@ function SetUpBoard() {
 };
 
 function DisplayPossibleValues() {
+
     let strHTML = ""
     let index = 0;
     let number = 1;
@@ -101,7 +104,7 @@ function DisplayPossibleValues() {
     document.querySelector("#pencil").innerHTML = strHTML
 };
 
-function DeterminePossibleValues() {
+function DetermineInitialPossibleValuesOld() {
     // check row >
     let tempRow = [];
     let tempColumnValues = [];
@@ -109,43 +112,46 @@ function DeterminePossibleValues() {
     let tempGridCoordinates = [];
     let PossibleValues = [];
     let countIndex = 0;
-    let tempGridNum = 1;
+    let tempGridNum = 0;
     let newGrid = true
+    let efficientCounter = 0;
     for (let row = 0; row < game.Board.length; row++) {
-        tempRow = game.Board[row].slice();
-        tempRow.sort((a, b) => a.Value < b.Value);
+        // tempRow.sort((a, b) => a.Value < b.Value);
+        game.RowValues.push([]);
+        tempRow = game.Initial[row].slice();
+        game.RowValues[row] = tempRow.filter((num) => num !== 0);
+        // console.log(game.RowValues[row]);
         for (let square = 0; square < game.Board[row].length; square++) {
-            if (tempGridNum !== game.Board[row][square].GridNum) {
-                tempGridNum = game.Board[row][square].GridNum
-                newGrid = true
-            }
             if (game.Board[row][square].Value === 0) {
                 PossibleValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
                 // check row possibilities >
                 countIndex = 0;
-                while (tempRow[countIndex].Value !== 0 && countIndex < tempRow.length) {
-                    if (PossibleValues.indexOf(tempRow[countIndex].Value) >= 0) {
-                        PossibleValues.splice(PossibleValues.indexOf(tempRow[countIndex].Value), 1);
-                    }
+                while (countIndex < game.RowValues[row].length) {
+                    PossibleValues = PossibleValues.filter((num) => !game.RowValues[row].includes(num));
                     countIndex++;
                 }
 
                 // check column possibilities >
                 tempColumnValues = [];
                 countIndex = 0;
+                game.ColumnValues.push([]);
                 for (let col = 0; col < game.Board.length; col++) {
                     tempColumnValues.push(game.Board[col][square].Value)
+                    efficientCounter++;
                 }
-                tempColumnValues.sort((a, b) => a < b);
-                while (tempColumnValues[countIndex] !== 0 && countIndex <= tempColumnValues.length) {
-                    if (PossibleValues.indexOf(tempColumnValues[countIndex]) >= 0) {
-                        PossibleValues.splice(PossibleValues.indexOf(tempColumnValues[countIndex]), 1)
-                    }
+                game.ColumnValues[square] = tempColumnValues.filter((num) => num !== 0);
+                while (countIndex <= tempColumnValues.length) {
+                    PossibleValues = PossibleValues.filter((num) => !game.ColumnValues[square].includes(num));
                     countIndex++;
                 }
+                console.log(efficientCounter);
+
+                console.log(game.RowValues[row]);
+                console.log("col", game.ColumnValues[square]);
 
                 // check grid possibilities >
-                if (newGrid) {
+                if (tempGridNum !== game.Board[row][square].GridNum) {
+                    tempGridNum = game.Board[row][square].GridNum
                     tempGridValues = [];
                     tempGridCoordinates = game.Board[row][square].GridCoordinates;
                     for (let gridRow = tempGridCoordinates[1]; gridRow < tempGridCoordinates[1] + 3; gridRow++) {
@@ -156,8 +162,8 @@ function DeterminePossibleValues() {
                         }
                     }
                     tempGridValues.sort((a, b) => a < b);
-                    newGrid = false;
                 }
+                
                 countIndex = 0;
                 while (tempGridValues[countIndex] !== 0 && countIndex < tempGridValues.length) {
                     if (PossibleValues.indexOf(tempGridValues[countIndex]) >= 0) {
@@ -171,7 +177,28 @@ function DeterminePossibleValues() {
     }
 };
 
-function DisplayImPossibleValues() {
+function DetermineInitialPossibleValues() {
+    let tempRow = [];
+    let tempCol = [];
+    for (let row = 0; row < game.Initial.length; row++) {
+        game.RowValues.push([]);
+        tempRow = game.Initial[row].slice();
+        game.RowValues[row] = tempRow.filter((num) => num !== 0);
+        console.log(game.RowValues[row]);
+    }
+
+    for (let col = 0; col < game.Initial.length; col++) {
+
+        game.ColumnValues.push(col);
+        tempCol = game.Initial
+    }
+}
+
+function UpdatePossibleValues() {
+
+}
+
+function DisplayImpossibleValues() {
 
 }
 
@@ -233,5 +260,5 @@ function CheckColumn() {
 
 DisplayBoard();
 SetUpBoard();
-DeterminePossibleValues();
+DetermineInitialPossibleValuesOld();
 DisplayPossibleValues();
