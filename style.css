@@ -2,7 +2,8 @@
     color: black;
 }
 .editable{
-    color: grey;
+    color: blue;
+    font-style: italic;
 }
 
 table {
@@ -47,5 +48,13 @@ table td table{
     z-index: 2;
     position: absolute;
     left: 8px;
+    top: 30px;
+}
+
+#userBoard{
+    z-index: 3;
+    position: absolute;
+    left: 8px;
     top:8px;
+    
 }

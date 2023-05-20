@@ -1,4 +1,4 @@
-const INITIAL_BOARD = [
+const EASY_BOARD = [
     [7, 6, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 8, 4, 0, 5, 0, 0, 0],
     [0, 9, 0, 0, 0, 0, 7, 3, 1],
@@ -8,6 +8,30 @@ const INITIAL_BOARD = [
     [0, 0, 0, 9, 8, 4, 0, 0, 3],
     [0, 0, 0, 2, 0, 0, 9, 7, 5],
     [9, 0, 1, 7, 0, 0, 0, 0, 4]
+]
+
+const MEDIUM_BOARD = [
+    [0, 1, 8, 0, 0, 0, 0, 4, 0],
+    [7, 5, 3, 0, 0, 0, 1, 0, 0],
+    [0, 0, 6, 0, 5, 7, 0, 0, 0],
+    [0, 3, 0, 0, 7, 2, 0, 0, 4],
+    [6, 0, 9, 8, 3, 0, 2, 0, 0],
+    [8, 0, 0, 0, 0, 9, 0, 0, 0],
+    [0, 0, 5, 0, 6, 0, 0, 2, 9],
+    [0, 7, 0, 0, 0, 8, 0, 6, 1],
+    [0, 0, 0, 0, 1, 0, 0, 0, 0]
+]
+
+const HARD_BOARD = [
+    [0, 1, 0, 0, 0, 6, 0, 0, 0],
+    [7, 0, 0, 3, 0, 0, 8, 0, 5],
+    [0, 0, 0, 0, 0, 0, 7, 9, 0],
+    [1, 7, 0, 5, 0, 0, 0, 0, 9],
+    [9, 0, 3, 0, 2, 7, 0, 0, 8],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [8, 0, 5, 0, 0, 1, 0, 3, 0],
+    [0, 0, 0, 9, 7, 0, 0, 8, 0],
+    [0, 0, 0, 0, 0, 5, 9, 0, 2]
 ]
 
 
@@ -22,26 +46,26 @@ class Game {
 };
 
 class Square {
-    constructor(value, editable, PossibleValues, imPossibleValues, gridNum, gridCoordinates) {
+    constructor(value, editable, possibleValues, impossibleValues, gridNum, gridCoordinates) {
         this.Value = value;
         this.Editable = editable;
-        this.PossibleValues = PossibleValues;
-        this.ImPossibleValues = imPossibleValues;
+        this.PossibleValues = possibleValues;
+        this.ImPossibleValues = impossibleValues;
         this.GridNum = gridNum;
         this.GridCoordinates = gridCoordinates;
     }
 };
 
 let board = [];
-let game = new Game(INITIAL_BOARD, [], [], [], []);
+let game = new Game(EASY_BOARD, [], [], [], []);
 
-function DisplayBoard() {
+function DisplayUserBoard() {
     let strHTML = ""
-    for (let row = 0; row < INITIAL_BOARD.length; row++) {
+    for (let row = 0; row < game.Board.length; row++) {
         strHTML += `<tr>`
-        for (let square = 0; square < INITIAL_BOARD[row].length; square++) {
-            strHTML += `<td id="R${row}C${square}" class="${(INITIAL_BOARD[row][square] === 0 ? 'editable' : 'stone')}"> 
-            ${(INITIAL_BOARD[row][square] === 0 ? '' : INITIAL_BOARD[row][square])} </td>`
+        for (let square = 0; square < game.Board[row].length; square++) {
+            strHTML += `<td id="R${row}C${square}" class="${(game.Board[row][square].Editable ? 'editable' : 'stone')}"> 
+            ${(game.Board[row][square].Value === 0 ? '' : game.Board[row][square].Value)} </td>`
         }
         strHTML += `</tr>`
     }
@@ -52,17 +76,17 @@ function SetUpBoard() {
     console.log("bismillah")
     let gridCoordinates = [];
     let gridNum = 0;
-    for (let row = 0; row < INITIAL_BOARD.length; row++) {
+    for (let row = 0; row < game.Initial.length; row++) {
         game.Board.push([])
-        for (let square = 0; square < INITIAL_BOARD[row].length; square++) {
+        for (let square = 0; square < game.Initial[row].length; square++) {
             if (square % 3 === 0) {
                 gridCoordinates = GetGridCoordinates(row, square)
                 gridNum++
             }
-            if (INITIAL_BOARD[row][square] === 0) {
-                game.Board[row].push(new Square(INITIAL_BOARD[row][square], true, [], [], gridNum, gridCoordinates));
+            if (game.Initial[row][square] === 0) {
+                game.Board[row].push(new Square(game.Initial[row][square], true, [], [], gridNum, gridCoordinates));
             } else {
-                game.Board[row].push(new Square(INITIAL_BOARD[row][square], false, [], [], gridNum, gridCoordinates));
+                game.Board[row].push(new Square(game.Initial[row][square], false, [], [], gridNum, gridCoordinates));
             }
         }
     }
@@ -120,7 +144,6 @@ function DetermineInitialPossibleValuesOld() {
         game.RowValues.push([]);
         tempRow = game.Initial[row].slice();
         game.RowValues[row] = tempRow.filter((num) => num !== 0);
-        // console.log(game.RowValues[row]);
         for (let square = 0; square < game.Board[row].length; square++) {
             if (game.Board[row][square].Value === 0) {
                 PossibleValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -144,10 +167,7 @@ function DetermineInitialPossibleValuesOld() {
                     PossibleValues = PossibleValues.filter((num) => !game.ColumnValues[square].includes(num));
                     countIndex++;
                 }
-                console.log(efficientCounter);
-
-                console.log(game.RowValues[row]);
-                console.log("col", game.ColumnValues[square]);
+                // console.log(efficientCounter);
 
                 // check grid possibilities >
                 if (tempGridNum !== game.Board[row][square].GridNum) {
@@ -163,7 +183,7 @@ function DetermineInitialPossibleValuesOld() {
                     }
                     tempGridValues.sort((a, b) => a < b);
                 }
-                
+
                 countIndex = 0;
                 while (tempGridValues[countIndex] !== 0 && countIndex < tempGridValues.length) {
                     if (PossibleValues.indexOf(tempGridValues[countIndex]) >= 0) {
@@ -177,6 +197,105 @@ function DetermineInitialPossibleValuesOld() {
     }
 };
 
+function DeterminePossibleValues() {
+    let tempRow = [];
+    let tempColumnValues = [];
+    let tempGridValues = [];
+    let tempGridCoordinates = [];
+    let PossibleValues = [];
+    let countIndex = 0;
+    let tempGridNum = 0;
+    let newGrid = true
+    let efficientCounter = 0;
+    for (let row = 0; row < game.Board.length; row++) {
+        // tempRow.sort((a, b) => a.Value < b.Value);
+        tempRow = game.Board[row].slice();
+        tempRow = tempRow.filter((num) => num !== 0);
+        for (let square = 0; square < game.Board[row].length; square++) {
+            if (game.Board[row][square].Value === 0) {
+                PossibleValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                // check row possibilities >
+                countIndex = 0;
+                while (countIndex < 9) {
+                    PossibleValues = PossibleValues.filter((num) => !game.RowValues[row].includes(num));
+                    countIndex++;
+                }
+
+                // check column possibilities >
+                tempColumnValues = [];
+                countIndex = 0;
+                game.ColumnValues.push([]);
+                for (let col = 0; col < game.Board.length; col++) {
+                    tempColumnValues.push(game.Board[col][square].Value)
+                    efficientCounter++;
+                }
+                game.ColumnValues[square] = tempColumnValues.filter((num) => num !== 0);
+                while (countIndex <= tempColumnValues.length) {
+                    PossibleValues = PossibleValues.filter((num) => !game.ColumnValues[square].includes(num));
+                    countIndex++;
+                }
+                // console.log(efficientCounter);
+
+                // check grid possibilities >
+                if (tempGridNum !== game.Board[row][square].GridNum) {
+                    tempGridNum = game.Board[row][square].GridNum
+                    tempGridValues = [];
+                    tempGridCoordinates = game.Board[row][square].GridCoordinates;
+                    for (let gridRow = tempGridCoordinates[1]; gridRow < tempGridCoordinates[1] + 3; gridRow++) {
+                        for (let gridCol = tempGridCoordinates[0]; gridCol < tempGridCoordinates[0] + 3; gridCol++) {
+                            if (game.Board[gridRow][gridCol].Value !== 0) {
+                                tempGridValues.push(game.Board[gridRow][gridCol].Value);
+                            }
+                        }
+                    }
+                    tempGridValues.sort((a, b) => a < b);
+                }
+
+                countIndex = 0;
+                while (tempGridValues[countIndex] !== 0 && countIndex < tempGridValues.length) {
+                    if (PossibleValues.indexOf(tempGridValues[countIndex]) >= 0) {
+                        PossibleValues.splice(PossibleValues.indexOf(tempGridValues[countIndex]), 1)
+                    }
+                    countIndex++;
+                }
+                game.Board[row][square].PossibleValues = PossibleValues;
+            }
+        }
+    }
+}
+
+function DetermineObviousSingles() {
+    for (let row = 0; row < game.Board.length; row++) {
+        for (let col = 0; col < game.Board[row].length; col++) {
+            if (game.Board[row][col].PossibleValues.length === 1) {
+                game.Board[row][col].Value = game.Board[row][col].PossibleValues[0];
+                RemovePossibleValue(game.Board[row][col].PossibleValues[0], row, col, game.Board[row][col].GridCoordinates);
+                DisplayUserBoard();
+                DisplayPossibleValues();
+                row = 0;
+                col = -1;
+            }
+        }
+    }
+
+}
+
+function RemovePossibleValue(value, row, col, gridCoor) {
+    console.log("before", game.Board[row][col].PossibleValues);
+    game.Board[row][col].PossibleValues = game.Board[row][col].PossibleValues.filter((num) => num !== value)
+    for (let count = 0; count < 9; count++) {
+        game.Board[row][count].PossibleValues = game.Board[row][count].PossibleValues.filter((num) => num !== value);
+        game.Board[count][col].PossibleValues = game.Board[count][col].PossibleValues.filter((num) => num !== value);
+    }
+    for (let gridRow = gridCoor[1]; gridRow < gridCoor[1] + 3; gridRow++) {
+        for (let gridCol = gridCoor[0]; gridCol < gridCoor[0] + 3; gridCol++) {
+            game.Board[gridRow][gridCol].PossibleValues = game.Board[gridRow][gridCol].PossibleValues.filter((num) => num !== value);
+        }
+    }
+    console.log("after", game.Board[row][col].PossibleValues);
+
+}
+
 function DetermineInitialPossibleValues() {
     let tempRow = [];
     let tempCol = [];
@@ -188,14 +307,9 @@ function DetermineInitialPossibleValues() {
     }
 
     for (let col = 0; col < game.Initial.length; col++) {
-
         game.ColumnValues.push(col);
         tempCol = game.Initial
     }
-}
-
-function UpdatePossibleValues() {
-
 }
 
 function DisplayImpossibleValues() {
@@ -244,21 +358,44 @@ function CheckSolution() {
     }
 };
 
-function CheckSquareGrid() {
-
+function Reset() {
+    SetUpBoard();
+    DisplayUserBoard();
+    DetermineInitialPossibleValues();
+    DisplayPossibleValues();
 };
 
-function CheckRow() {
-
-};
-
-function CheckColumn() {
-
-};
-
-
-
-DisplayBoard();
 SetUpBoard();
-DetermineInitialPossibleValuesOld();
-DisplayPossibleValues();
+DisplayUserBoard();
+
+document.querySelector("#btnPossibleValues").addEventListener("click", (e) => {
+    DetermineInitialPossibleValuesOld();
+    DisplayPossibleValues();
+    DisplayUserBoard();
+});
+
+document.querySelector("#btnSolvePuzzle").addEventListener("click", (e) => {
+    DeterminePossibleValues();
+    DetermineObviousSingles();
+    DisplayUserBoard();
+});
+
+document.querySelector("#btnReset").addEventListener("click", (e) => {
+    game = new Game(game.Initial, [], [], [], []);
+    Reset();
+});
+
+document.querySelector("#btnEasy").addEventListener("click", (e) => {
+    game = new Game(EASY_BOARD, [], [], [], []);
+    Reset();
+});
+
+document.querySelector("#btnMedium").addEventListener("click", (e) => {
+    game = new Game(MEDIUM_BOARD, [], [], [], []);
+    Reset();
+});
+
+document.querySelector("#btnHard").addEventListener("click", (e) => {
+    game = new Game(HARD_BOARD, [], [], [], []);
+    Reset();
+});
