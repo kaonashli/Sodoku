@@ -264,7 +264,8 @@ function DeterminePossibleValues() {
     }
 }
 
-function DetermineObviousSingles() {
+function DetermineSingleCandidates() {
+    let found = false;
     for (let row = 0; row < game.Board.length; row++) {
         for (let col = 0; col < game.Board[row].length; col++) {
             if (game.Board[row][col].PossibleValues.length === 1) {
@@ -274,14 +275,135 @@ function DetermineObviousSingles() {
                 DisplayPossibleValues();
                 row = 0;
                 col = -1;
+                found = true
             }
         }
     }
+    return found;
+}
+
+function DetermineOnlyPossibilityInRow() {
+    let found = false;
+    let dict = createDictionary();
+    let onlyOne = [];
+    for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+            game.Board[row][col].PossibleValues.forEach((value) => {
+                dict[value]++;
+            })
+            if (col === 8) {
+                for (let key in dict) {
+                    if (dict[key] === 1) {
+                        onlyOne.push(key);
+                        console.log("found only one: " + key + " row: " + row);
+                    }
+                }
+                let c = 0;
+                let x = 0;
+                while (c < 9) {
+                    x = 0;
+                    while (x < onlyOne.length) {
+                        if (game.Board[row][c].PossibleValues.indexOf(parseInt(onlyOne[x])) >= 0) {
+                            game.Board[row][c].Value = parseInt(onlyOne[x]);
+                            RemovePossibleValue(parseInt(onlyOne[x]), row, c, game.Board[row][c].GridCoordinates);
+                            game.Board[row][c].PossibleValues = [];
+                            DisplayUserBoard();
+                            DisplayPossibleValues();
+                            row = 0;
+                            col = 0;
+                            x = onlyOne.length;
+                            c = 9;
+                            found = true;
+                        }
+                        x++
+                    }
+                    c++
+                }
+                dict = createDictionary();
+                onlyOne = [];
+            }
+        }
+    }
+    return found;
+}
+
+function DetermineOnlyPossibilityInColumn() {
+    let found = false;
+    let dict = createDictionary();
+    let onlyOne = [];
+    for (let col = 0; col < 9; col++) {
+        for (let row = 0; row < 9; row++) {
+            game.Board[row][col].PossibleValues.forEach((value) => {
+                dict[value]++;
+            })
+            if (row === 8) {
+                for (let key in dict) {
+                    if (dict[key] === 1) {
+                        onlyOne.push(key);
+                        console.log("found only one: " + key + " row: " + row);
+                    }
+                }
+                let r = 0;
+                let x = 0;
+                while (r < 9) {
+                    x = 0;
+                    while (x < onlyOne.length) {
+                        if (game.Board[r][col].PossibleValues.indexOf(parseInt(onlyOne[x])) >= 0) {
+                            game.Board[r][col].Value = parseInt(onlyOne[x]);
+                            RemovePossibleValue(parseInt(onlyOne[x]), r, col, game.Board[r][col].GridCoordinates);
+                            game.Board[r][col].PossibleValues = [];
+                            DisplayUserBoard();
+                            DisplayPossibleValues();
+                            row = 0;
+                            col = 0;
+                            x = onlyOne.length;
+                            r = 9;
+                            found = true;
+                        }
+                        x++
+                    }
+                    r++
+                }
+                dict = createDictionary();
+                onlyOne = [];
+            }
+        }
+    }
+    return found;
+}
+
+function DetermineOnlyPossibility() {
+
+    let tempSection = [];
+
+    for (let row = 0; row < game.Board.length; row++) {
+        for (let col = 0; col < game.Board[row].length; col++) {
+            tempSection.push(game.Board[row][col].PossibleValues);
+            // console.log("test", tempSection);
+        }
+    }
+    // console.log("Initiating DetermineOnlyPossibilityInRow()");
+}
+
+
+
+function createDictionary() {
+    let dict = {};
+
+    for (let i = 1; i <= 9; i++) {
+        dict[i] = 0;
+    }
+    return dict;
+}
+
+
+
+function DetermineOnlyPossibilityInGrid() {
 
 }
 
 function RemovePossibleValue(value, row, col, gridCoor) {
-    console.log("before", game.Board[row][col].PossibleValues);
+    // console.log("before", game.Board[row][col].PossibleValues);
     game.Board[row][col].PossibleValues = game.Board[row][col].PossibleValues.filter((num) => num !== value)
     for (let count = 0; count < 9; count++) {
         game.Board[row][count].PossibleValues = game.Board[row][count].PossibleValues.filter((num) => num !== value);
@@ -292,7 +414,7 @@ function RemovePossibleValue(value, row, col, gridCoor) {
             game.Board[gridRow][gridCol].PossibleValues = game.Board[gridRow][gridCol].PossibleValues.filter((num) => num !== value);
         }
     }
-    console.log("after", game.Board[row][col].PossibleValues);
+    // console.log("after", game.Board[row][col].PossibleValues);
 
 }
 
@@ -375,10 +497,21 @@ document.querySelector("#btnPossibleValues").addEventListener("click", (e) => {
 });
 
 document.querySelector("#btnSolvePuzzle").addEventListener("click", (e) => {
-    DeterminePossibleValues();
-    DetermineObviousSingles();
-    DisplayUserBoard();
+    SolvePuzzle()
 });
+
+function SolvePuzzle() {
+    found = true
+    DeterminePossibleValues();
+    while(found === true){
+        found = DetermineSingleCandidates();
+        // DetermineOnlyPossibility();
+        found = DetermineOnlyPossibilityInRow();
+        found = DetermineOnlyPossibilityInColumn();
+        DisplayUserBoard();
+    }
+    
+}
 
 document.querySelector("#btnReset").addEventListener("click", (e) => {
     game = new Game(game.Initial, [], [], [], []);
